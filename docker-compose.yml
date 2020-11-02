@@ -1,0 +1,35 @@
+version: '3.3'
+services:
+    javaapp-service:
+        container_name: middleware-service
+        build:
+             context: .
+             dockerfile: Dockerfile
+        image: act-middleware:latest
+        expose:
+            - 80
+        ports:
+            - 80:8080
+        networks:
+            - dockerpoc-network
+        logging:
+            driver: json-file
+         
+    prometheus:
+        image: prom/prometheus:v2.21.0
+        volumes:
+            - ./prometheus.yml:/etc/prometheus/
+        command:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+        ports:
+            - 9090:9090
+        networks:
+            - grafana
+        depends_on:
+            - javaapp
+            
+networks:
+    grafana: null
+volumes:
+    app_data: {}
